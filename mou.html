@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOU - Atomic System & Mukhtiar Munir Hospital</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.8;
+            color: #1a202c;
+            background: #f7fafc;
+            padding: 40px 20px;
+        }
+
+        .document {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 60px 80px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header .subtitle {
+            font-size: 1.3em;
+            color: #667eea;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+
+        .date {
+            text-align: right;
+            margin-bottom: 40px;
+            font-size: 1.05em;
+            color: #4a5568;
+        }
+
+        .parties {
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+            padding: 30px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .party {
+            margin-bottom: 25px;
+        }
+
+        .party:last-child {
+            margin-bottom: 0;
+        }
+
+        .party-label {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .party-name {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .party-details {
+            color: #4a5568;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #2d3748;
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        h3 {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #4a5568;
+            margin: 25px 0 15px 0;
+        }
+
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+            color: #4a5568;
+        }
+
+        ul, ol {
+            margin: 15px 0 15px 30px;
+            color: #4a5568;
+        }
+
+        li {
+            margin-bottom: 10px;
+            padding-left: 10px;
+        }
+
+        .article {
+            margin-bottom: 30px;
+        }
+
+        .article-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .highlight-box {
+            background: #fff5f5;
+            border-left: 4px solid #fc8181;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .info-box {
+            background: #f0fff4;
+            border-left: 4px solid #68d391;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .signature-section {
+            margin-top: 60px;
+            page-break-inside: avoid;
+        }
+
+        .signature-block {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            margin-top: 50px;
+        }
+
+        .signature {
+            padding: 20px 0;
+        }
+
+        .signature-line {
+            border-top: 2px solid #2d3748;
+            margin-top: 80px;
+            margin-bottom: 10px;
+        }
+
+        .signature-label {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 1.05em;
+            margin-bottom: 5px;
+        }
+
+        .signature-title {
+            color: #718096;
+            font-size: 0.95em;
+        }
+
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            padding-top: 30px;
+            border-top: 2px solid #e2e8f0;
+            color: #718096;
+            font-size: 0.9em;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .document {
+                box-shadow: none;
+                padding: 40px;
+            }
+
+            .signature-section {
+                page-break-before: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .document {
+                padding: 30px 25px;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .signature-block {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="document">
+        <!-- Header -->
+        <div class="header">
+            <h1>Memorandum of Understanding</h1>
+            <div class="subtitle">Digital Transformation Project</div>
+        </div>
+
+        <div class="date">
+            <strong>Date:</strong> ________________
+        </div>
+
+        <!-- Parties -->
+        <div class="parties">
+            <div class="party">
+                <div class="party-label">PARTY A (Service Provider)</div>
+                <div class="party-name">Atomic System</div>
+                <div class="party-details">
+                    Address: ________________________________<br>
+                    Contact: ________________________________<br>
+                    Email: __________________________________
+                </div>
+            </div>
+
+            <div class="party">
+                <div class="party-label">PARTY B (Client)</div>
+                <div class="party-name">Mukhtiar Munir Hospital</div>
+                <div class="party-details">
+                    Address: ________________________________<br>
+                    Contact: ________________________________<br>
+                    Email: __________________________________
+                </div>
+            </div>
+        </div>
+
+        <!-- Preamble -->
+        <h2>Preamble</h2>
+        <p>
+            This Memorandum of Understanding (MoU) is entered into on this day of ____________, 2025, between Atomic System (hereinafter referred to as "Service Provider") and Mukhtiar Munir Hospital (hereinafter referred to as "Client"), collectively referred to as "the Parties."
+        </p>
+        <p>
+            WHEREAS, the Client desires to modernize and digitally transform its healthcare operations through the implementation of a comprehensive Hospital Management System; and
+        </p>
+        <p>
+            WHEREAS, the Service Provider possesses the technical expertise, resources, and experience to design, develop, and deploy such a digital solution;
+        </p>
+        <p>
+            NOW, THEREFORE, the Parties agree to collaborate on the Digital Transformation Project under the terms and conditions set forth herein.
+        </p>
+
+        <!-- Article 1 -->
+        <div class="article">
+            <h2><span class="article-number">Article 1</span> Purpose & Objectives</h2>
+            <p>
+                The purpose of this MoU is to establish a framework for cooperation between the Parties for the development and implementation of a Hospital Management System that will:
+            </p>
+            <ul>
+                <li>Centralize patient data management with secure, real-time access</li>
+                <li>Implement role-based workflow systems for doctors, nurses, surgeons, and administrative staff</li>
+                <li>Provide advanced sorting, filtering, and search capabilities</li>
+                <li>Enable digital signature functionality with multiple design options</li>
+                <li>Enhance operational efficiency and improve patient care quality</li>
+                <li>Ensure data security and compliance with healthcare regulations</li>
+            </ul>
+        </div>
+
+        <!-- Article 2 -->
+        <div class="article">
+            <h2><span class="article-number">Article 2</span> Scope of Work</h2>
+            
+            <h3>2.1 Service Provider Responsibilities</h3>
+            <p>Atomic System agrees to deliver the following services:</p>
+            <ol>
+                <li><strong>Requirements Analysis:</strong> Conduct detailed requirement gathering sessions with Client stakeholders</li>
+                <li><strong>System Design:</strong> Create comprehensive system architecture and database schema</li>
+                <li><strong>Frontend Development:</strong> Develop responsive React.js dashboards with TypeScript for all user roles</li>
+                <li><strong>Backend Development:</strong> Build RESTful APIs using Node.js and Express.js</li>
+                <li><strong>Database Implementation:</strong> Design and deploy PostgreSQL database with optimization</li>
+                <li><strong>Authentication & Security:</strong> Implement JWT authentication, role-based access control, and data encryption</li>
+                <li><strong>Digital Signature Module:</strong> Develop custom canvas-based signature generator</li>
+                <li><strong>Cloud Deployment:</strong> Deploy system on AWS or DigitalOcean with SSL configuration</li>
+                <li><strong>Testing & QA:</strong> Perform comprehensive testing and quality assurance</li>
+                <li><strong>Training & Documentation:</strong> Provide user manuals, video tutorials, and staff training</li>
+            </ol>
+
+            <h3>2.2 Client Responsibilities</h3>
+            <p>Mukhtiar Munir Hospital agrees to:</p>
+            <ol>
+                <li>Provide timely access to required information and stakeholders</li>
+                <li>Designate a project coordinator for communication with Service Provider</li>
+                <li>Provide necessary infrastructure and resources as mutually agreed</li>
+                <li>Review and approve deliverables within agreed timeframes</li>
+                <li>Ensure staff availability for training sessions</li>
+                <li>Provide feedback and testing support during development phases</li>
+            </ol>
+        </div>
+
+        <!-- Article 3 -->
+        <div class="article">
+            <h2><span class="article-number">Article 3</span> Technology Stack</h2>
+            <p>The system will be developed using the following proven technologies:</p>
+            <ul>
+                <li><strong>Frontend:</strong> React.js with TypeScript for robust user interface</li>
+                <li><strong>Backend:</strong> Node.js with Express.js for scalable API services</li>
+                <li><strong>Database:</strong> PostgreSQL for reliable data management</li>
+                <li><strong>Cloud Infrastructure:</strong> AWS or DigitalOcean for hosting and deployment</li>
+                <li><strong>Security:</strong> JWT authentication, RBAC, and end-to-end encryption</li>
+                <li><strong>Signature Module:</strong> Custom HTML5 Canvas-based generator</li>
+            </ul>
+        </div>
+
+        <!-- Article 4 -->
+        <div class="article">
+            <h2><span class="article-number">Article 4</span> Project Timeline</h2>
+            <p>The project shall be completed within a period of <strong>two (2) weeks</strong> from the commencement date, structured as follows:</p>
+            
+            <div class="info-box">
+                <h3>Week 1: Foundation & Core Development (Days 1-7)</h3>
+                <ul>
+                    <li>Requirements finalization and system architecture design</li>
+                    <li>Database schema creation and setup</li>
+                    <li>Core backend APIs development</li>
+                    <li>Authentication system and role-based access control</li>
+                    <li>Initial frontend framework setup</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <h3>Week 2: Integration, Features & Deployment (Days 8-14)</h3>
+                <ul>
+                    <li>Complete frontend dashboards for all roles</li>
+                    <li>Workflow integration and stage management</li>
+                    <li>Digital signature feature implementation</li>
+                    <li>Advanced sorting and filtering capabilities</li>
+                    <li>Comprehensive testing and bug fixes</li>
+                    <li>Cloud deployment and staff training</li>
+                </ul>
+            </div>
+
+            <p>
+                <strong>Project Commencement Date:</strong> ________________<br>
+                <strong>Expected Completion Date:</strong> ________________
+            </p>
+        </div>
+
+        <!-- Article 5 -->
+        <div class="article">
+            <h2><span class="article-number">Article 5</span> Financial Terms</h2>
+            
+            <h3>5.1 Project Cost</h3>
+            <p>The total project cost is mutually agreed at <strong>PKR 250,000 to PKR 300,000</strong> (Pakistani Rupees Two Hundred Fifty Thousand to Three Hundred Thousand only).</p>
+
+            <h3>5.2 Cost Breakdown</h3>
+            <ul>
+                <li>Frontend Development: PKR 70,000 - 80,000</li>
+                <li>Backend & API Development: PKR 65,000 - 75,000</li>
+                <li>Database Design & Implementation: PKR 35,000 - 40,000</li>
+                <li>Role-based Access & Authentication: PKR 25,000 - 30,000</li>
+                <li>Digital Signature Feature: PKR 20,000 - 25,000</li>
+                <li>Cloud Hosting Setup & Deployment: PKR 15,000 - 20,000</li>
+                <li>Testing & Quality Assurance: PKR 15,000 - 20,000</li>
+                <li>Documentation & Training: PKR 5,000 - 10,000</li>
+            </ul>
+
+            <h3>5.3 Payment Schedule</h3>
+            <ol>
+                <li><strong>First Installment (50%):</strong> PKR _________ upon signing of this MoU</li>
+                <li><strong>Second Installment (30%):</strong> PKR _________ upon completion of Week 1 milestones</li>
+                <li><strong>Final Installment (20%):</strong> PKR _________ upon successful deployment and acceptance testing</li>
+            </ol>
+
+            <div class="highlight-box">
+                <strong>Payment Method:</strong> Bank transfer to the Service Provider's designated account. Details to be provided separately.
+            </div>
+        </div>
+
+        <!-- Article 6 -->
+        <div class="article">
+            <h2><span class="article-number">Article 6</span> Intellectual Property Rights</h2>
+            <p>
+                Upon full payment of all agreed fees, the Client shall own all intellectual property rights to the custom-developed system, including source code, documentation, and related materials. The Service Provider retains the right to use generic frameworks, libraries, and tools used in the development process.
+            </p>
+        </div>
+
+        <!-- Article 7 -->
+        <div class="article">
+            <h2><span class="article-number">Article 7</span> Confidentiality</h2>
+            <p>
+                Both Parties agree to maintain strict confidentiality regarding all proprietary information, patient data, business processes, and technical specifications shared during the course of this project. This obligation shall survive the termination of this MoU.
+            </p>
+        </div>
+
+        <!-- Article 8 -->
+        <div class="article">
+            <h2><span class="article-number">Article 8</span> Warranty & Support</h2>
+            
+            <h3>8.1 Warranty Period</h3>
+            <p>
+                The Service Provider warrants that the delivered system will be free from critical defects for a period of <strong>30 days</strong> from the date of deployment. Any bugs or issues identified during this period will be resolved at no additional cost.
+            </p>
+
+            <h3>8.2 Post-Warranty Support</h3>
+            <p>
+                After the warranty period, ongoing support and maintenance services may be provided under a separate agreement with mutually agreed terms and pricing.
+            </p>
+        </div>
+
+        <!-- Article 9 -->
+        <div class="article">
+            <h2><span class="article-number">Article 9</span> Termination</h2>
+            <p>
+                This MoU may be terminated by either Party with written notice of <strong>7 days</strong> in case of:
+            </p>
+            <ul>
+                <li>Material breach of terms by the other Party</li>
+                <li>Failure to meet agreed milestones without valid justification</li>
+                <li>Force majeure events preventing project completion</li>
+            </ul>
+            <p>
+                In the event of termination, the Client shall pay for all work completed up to the termination date based on milestone achievements.
+            </p>
+        </div>
+
+        <!-- Article 10 -->
+        <div class="article">
+            <h2><span class="article-number">Article 10</span> Dispute Resolution</h2>
+            <p>
+                Any disputes arising from this MoU shall first be attempted to be resolved through mutual discussion and negotiation. If unresolved, the Parties agree to seek mediation before pursuing legal action. The applicable laws of Pakistan shall govern this MoU.
+            </p>
+        </div>
+
+        <!-- Article 11 -->
+        <div class="article">
+            <h2><span class="article-number">Article 11</span> Miscellaneous</h2>
+            
+            <h3>11.1 Amendment</h3>
+            <p>
+                This MoU may be amended or modified only through written agreement signed by both Parties.
+            </p>
+
+            <h3>11.2 Entire Agreement</h3>
+            <p>
+                This MoU constitutes the entire understanding between the Parties and supersedes all prior discussions, negotiations, or agreements.
+            </p>
+
+            <h3>11.3 Severability</h3>
+            <p>
+                If any provision of this MoU is found to be invalid or unenforceable, the remaining provisions shall continue in full force and effect.
+            </p>
+        </div>
+
+        <!-- Signatures -->
+        <div class="signature-section">
+            <h2>Signatures</h2>
+            <p>
+                IN WITNESS WHEREOF, the authorized representatives of the Parties have executed this Memorandum of Understanding on the date first written above.
+            </p>
+
+            <div class="signature-block">
+                <div class="signature">
+                    <div class="signature-line"></div>
+                    <div class="signature-label">For Atomic System</div>
+                    <div class="signature-title">
+                        Name: _________________________<br>
+                        Title: _________________________<br>
+                        Date: __________________________
+                    </div>
+                </div>
+
+                <div class="signature">
+                    <div class="signature-line"></div>
+                    <div class="signature-label">For Mukhtiar Munir Hospital</div>
+                    <div class="signature-title">
+                        Name: _________________________<br>
+                        Title: _________________________<br>
+                        Date: __________________________
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>
+                This document contains <strong>confidential information</strong> and is intended solely for the parties named above.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+
