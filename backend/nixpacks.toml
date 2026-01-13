@@ -5,7 +5,7 @@ nixPkgs = ["nodejs_20", "openssl"]
 cmds = ["npm install"]
 
 [phases.build]
-cmds = ["npx prisma generate"]
+cmds = ["npx prisma generate", "npx prisma db push", "npx prisma db seed"]
 
 [start]
 cmd = "npm start"
