@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mukhtiar Munir Hospital - Management System Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #667eea;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .content {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: none;
+        }
+
+        .content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .patient-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .patient-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .patient-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .patient-card p {
+            color: #666;
+            margin: 5px 0;
+        }
+
+        .signature-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .signature-style {
+            padding: 30px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .signature-style:hover {
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .signature-style.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .signature-preview {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .workflow-steps {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .workflow-steps::before {
+            content: '';
+            position: absolute;
+            top: 25px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 0;
+        }
+
+        .workflow-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .workflow-step-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #e0e0e0;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #999;
+        }
+
+        .workflow-step.active .workflow-step-circle {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .workflow-step.completed .workflow-step-circle {
+            border-color: #28a745;
+            background: #28a745;
+            color: white;
+        }
+
+        .workflow-step-label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .mr-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+            padding: 20px;
+            background: #f0f4ff;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group input {
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .role-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .role-card {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .role-card:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+        }
+
+        .role-card.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .role-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .stat-card h3 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 Mukhtiar Munir Hospital</h1>
+            <p>Digital Patient Management System Demo</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('dashboard')">Dashboard</button>
+            <button class="tab" onclick="showTab('admission')">Patient Admission</button>
+            <button class="tab" onclick="showTab('patients')">Patient List</button>
+            <button class="tab" onclick="showTab('roles')">Role Management</button>
+            <button class="tab" onclick="showTab('signatures')">Digital Signatures</button>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="content active">
+            <h2 style="margin-bottom: 30px; color: #667eea;">System Dashboard</h2>
+            
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <h3 id="totalPatients">0</h3>
+                    <p>Total Patients</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3 id="admittedToday">0</h3>
+                    <p>Admitted Today</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3 id="surgeryScheduled">0</h3>
+                    <p>Surgery Scheduled</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <h3 id="discharged">0</h3>
+                    <p>Discharged</p>
+                </div>
+            </div>
+
+            <h3 style="margin: 30px 0 20px; color: #667eea;">Recent Activities</h3>
+            <div id="recentActivities"></div>
+        </div>
+
+        <!-- Patient Admission -->
+        <div id="admission" class="content">
+            <h2 style="margin-bottom: 30px; color: #667eea;">Patient Admission</h2>
+            
+            <div class="workflow-steps">
+                <div class="workflow-step active">
+                    <div class="workflow-step-circle">1</div>
+                    <div class="workflow-step-label">Registration</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="workflow-step-circle">2</div>
+                    <div class="workflow-step-label">Consent Forms</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="workflow-step-circle">3</div>
+                    <div class="workflow-step-label">Estimate</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="workflow-step-circle">4</div>
+                    <div class="workflow-step-label">Admission</div>
+                </div>
+            </div>
+
+            <form onsubmit="return admitPatient(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Patient Name *</label>
+                        <input type="text" id="patientName" required placeholder="Enter patient name">
+                    </div>
+                    <div class="form-group">
+                        <label>Father's Name *</label>
+                        <input type="text" id="fatherName" required placeholder="Enter father's name">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>CNIC Number *</label>
+                        <input type="text" id="cnic" required placeholder="XXXXX-XXXXXXX-X">
+                    </div>
+                    <div class="form-group">
+                        <label>Telephone Number *</label>
+                        <input type="tel" id="phone" required placeholder="+92 XXX XXXXXXX">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Address *</label>
+                    <textarea id="address" required rows="3" placeholder="Complete address"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Admission Location *</label>
+                        <select id="admissionLocation" required>
+                            <option value="">Select location</option>
+                            <option value="W">Ward</option>
+                            <option value="P">Private Room</option>
+                            <option value="N">Nursery</option>
+                            <option value="IC">ICU</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Patient Type *</label>
+                        <select id="patientType" required>
+                            <option value="">Select type</option>
+                            <option value="surgery">Surgery</option>
+                            <option value="medicine">Medicine</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h3 style="margin: 30px 0 20px; color: #667eea;">Viral Marker Status</h3>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="hcv">
+                    <label for="hcv">HCV (Hepatitis C)</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="hbsag">
+                    <label for="hbsag">HBsAg (Hepatitis B)</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="hiv">
+                    <label for="hiv">HIV</label>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <button type="submit" class="btn">Generate MR Number & Admit Patient</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Patients List -->
+        <div id="patients" class="content">
+            <h2 style="margin-bottom: 30px; color: #667eea;">Patient List</h2>
+            
+            <div class="form-group">
+                <input type="text" id="searchPatient" placeholder="🔍 Search by name, MR number, or CNIC..." onkeyup="filterPatients()">
+            </div>
+
+            <div id="patientList"></div>
+        </div>
+
+        <!-- Role Management -->
+        <div id="roles" class="content">
+            <h2 style="margin-bottom: 30px; color: #667eea;">Role-Based Access Control</h2>
+            
+            <p style="margin-bottom: 20px; color: #666;">Select a role to see their dashboard view:</p>
+
+            <div class="role-selector">
+                <div class="role-card active" onclick="selectRole('receptionist')">
+                    <div class="role-icon">👩‍💼</div>
+                    <strong>Receptionist</strong>
+                </div>
+                <div class="role-card" onclick="selectRole('nurse')">
+                    <div class="role-icon">👩‍⚕️</div>
+                    <strong>Nurse</strong>
+                </div>
+                <div class="role-card" onclick="selectRole('doctor')">
+                    <div class="role-icon">👨‍⚕️</div>
+                    <strong>Doctor</strong>
+                </div>
+                <div class="role-card" onclick="selectRole('surgeon')">
+                    <div class="role-icon">🔬</div>
+                    <strong>Surgeon</strong>
+                </div>
+                <div class="role-card" onclick="selectRole('admin')">
+                    <div class="role-icon">⚙️</div>
+                    <strong>Admin</strong>
+                </div>
+            </div>
+
+            <div id="roleAccess" style="margin-top: 30px;"></div>
+        </div>
+
+        <!-- Digital Signatures -->
+        <div id="signatures" class="content">
+            <h2 style="margin-bottom: 30px; color: #667eea;">Digital Signature Generator</h2>
+            
+            <div class="alert alert-info">
+                Type your name below and select a style. Your signature will be generated automatically!
+            </div>
+
+            <div class="form-group">
+                <label>Enter Your Name *</label>
+                <input type="text" id="signatureName" placeholder="Dr. Ahmed Khan" oninput="generateSignatures()">
+            </div>
+
+            <h3 style="margin: 30px 0 20px; color: #667eea;">Choose Signature Style:</h3>
+            <div class="signature-options" id="signatureOptions"></div>
+
+            <div style="margin-top: 30px;">
+                <button class="btn" onclick="saveSignature()">Save Selected Signature</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data storage
+        let patients = [];
+        let selectedSignature = null;
+        let currentYear = new Date().getFullYear().toString().slice(-2);
+
+        // Generate MR Number
+        function generateMRNumber(location) {
+            const patientCount = patients.filter(p => p.admissionLocation === location).length + 1;
+            const number = String(patientCount).padStart(3, '0');
+            return `${number}/${currentYear}/I/${location}`;
+        }
+
+        // Admit Patient
+        function admitPatient(event) {
+            event.preventDefault();
+            
+            const patient = {
+                id: Date.now(),
+                name: document.getElementById('patientName').value,
+                fatherName: document.getElementById('fatherName').value,
+                cnic: document.getElementById('cnic').value,
+                phone: document.getElementById('phone').value,
+                address: document.getElementById('address').value,
+                admissionLocation: document.getElementById('admissionLocation').value,
+                patientType: document.getElementById('patientType').value,
+                mrNumber: generateMRNumber(document.getElementById('admissionLocation').value),
+                admissionDate: new Date().toLocaleDateString(),
+                status: 'Admitted',
+                viralMarkers: {
+                    hcv: document.getElementById('hcv').checked,
+                    hbsag: document.getElementById('hbsag').checked,
+                    hiv: document.getElementById('hiv').checked
+                }
+            };
+
+            patients.push(patient);
+            
+            alert(`✅ Patient admitted successfully!\n\nMR Number: ${patient.mrNumber}\nName: ${patient.name}\n\nConsent forms are ready for signature.`);
+            
+            // Reset form
+            event.target.reset();
+            
+            // Update dashboard
+            updateDashboard();
+            displayPatients();
+            
+            return false;
+        }
+
+        // Display patients
+        function displayPatients() {
+            const patientList = document.getElementById('patientList');
+            
+            if (patients.length === 0) {
+                patientList.innerHTML = '<div class="alert alert-info">No patients admitted yet.</div>';
+                return;
+            }
+
+            patientList.innerHTML = patients.map(patient => `
+                <div class="patient-card" onclick="viewPatient(${patient.id})">
+                    <h3>${patient.name}</h3>
+                    <p><strong>MR Number:</strong> ${patient.mrNumber}</p>
+                    <p><strong>Father's Name:</strong> ${patient.fatherName}</p>
+                    <p><strong>Admission Date:</strong> ${patient.admissionDate}</p>
+                    <p>
+                        <span class="badge badge-${patient.status === 'Admitted' ? 'success' : 'info'}">
+                            ${patient.status}
+                        </span>
+                        <span class="badge badge-info">${patient.patientType}</span>
+                        ${patient.viralMarkers.hcv || patient.viralMarkers.hbsag || patient.viralMarkers.hiv ? 
+                            '<span class="badge badge-warning">Viral Marker +ve</span>' : ''}
+                    </p>
+                </div>
+            `).join('');
+        }
+
+        // Filter patients
+        function filterPatients() {
+            const searchTerm = document.getElementById('searchPatient').value.toLowerCase();
+            const filteredPatients = patients.filter(p => 
+                p.name.toLowerCase().includes(searchTerm) ||
+                p.mrNumber.toLowerCase().includes(searchTerm) ||
+                p.cnic.includes(searchTerm)
+            );
+            
+            const patientList = document.getElementById('patientList');
+            patientList.innerHTML = filteredPatients.map(patient => `
+                <div class="patient-card" onclick="viewPatient(${patient.id})">
+                    <h3>${patient.name}</h3>
+                    <p><strong>MR Number:</strong> ${patient.mrNumber}</p>
+                    <p><strong>Father's Name:</strong> ${patient.fatherName}</p>
+                    <p><strong>Admission Date:</strong> ${patient.admissionDate}</p>
+                    <p>
+                        <span class="badge badge-success">${patient.status}</span>
+                        <span class="badge badge-info">${patient.patientType}</span>
+                    </p>
+                </div>
+            `).join('');
+        }
+
+        // View patient details
+        function viewPatient(id) {
+            const patient = patients.find(p => p.id === id);
+            if (patient) {
+                alert(`Patient Details:\n\nMR Number: ${patient.mrNumber}\nName: ${patient.name}\nFather: ${patient.fatherName}\nCNIC: ${patient.cnic}\nPhone: ${patient.phone}\nAddress: ${patient.address}\nAdmission: ${patient.admissionDate}\nStatus: ${patient.status}`);
+            }
+        }
+
+        // Update dashboard
+        function updateDashboard() {
+            document.getElementById('totalPatients').textContent = patients.length;
+            const today = new Date().toLocaleDateString();
+            document.getElementById('admittedToday').textContent = patients.filter(p => p.admissionDate === today).length;
+            document.getElementById('surgeryScheduled').textContent = patients.filter(p => p.patientType === 'surgery').length;
+            document.getElementById('discharged').textContent = patients.filter(p => p.status === 'Discharged').length;
+
+            // Recent activities
+            const activities = document.getElementById('recentActivities');
+            if (patients.length === 0) {
+                activities.innerHTML = '<div class="alert alert-info">No recent activities</div>';
+            } else {
+                const recent = patients.slice(-5).reverse();
+                activities.innerHTML = recent.map(p => `
+                    <div class="patient-card">
+                        <h3>${p.name} (${p.mrNumber})</h3>
+                        <p>Admitted on ${p.admissionDate}</p>
+                        <span class="badge badge-success">${p.status}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Role management
+        function selectRole(role) {
+            document.querySelectorAll('.role-card').forEach(card => card.classList.remove('active'));
+            event.target.closest('.role-card').classList.add('active');
+
+            const roleAccess = document.getElementById('roleAccess');
+            const roleData = {
+                receptionist: {
+                    title: 'Receptionist Dashboard',
+                    access: ['Patient Registration', 'Generate MR Numbers', 'Collect Consent Forms', 'Create Estimate Forms', 'Upload Documents', 'Print Forms']
+                },
+                nurse: {
+                    title: 'Nurse Dashboard',
+                    access: ['View Patient Records', 'Update Vital Signs', 'Administer Medication', 'Treatment Documentation', 'Patient Monitoring', 'Shift Handover Notes']
+                },
+                doctor: {
+                    title: 'Medical Officer Dashboard',
+                    access: ['Patient History', 'Examination Records', 'Treatment Plans', 'Prescriptions', 'Progress Notes', 'Lab Orders', 'Discharge Summary']
+                },
+                surgeon: {
+                    title: 'Surgeon Dashboard',
+                    access: ['Pre-op Assessment', 'Surgery Notes', 'Post-op Orders', 'Operation Records', 'Consultation Notes', 'Patient Follow-up']
+                },
+                admin: {
+                    title: 'Administrator Dashboard',
+                    access: ['Full System Access', 'User Management', 'Role Assignments', 'Data Export', 'System Settings', 'Audit Logs', 'Edit Capabilities']
+                }
+            };
+
+            const data = roleData[role];
+            roleAccess.innerHTML = `
+                <div class="alert alert-success">
+                    <h3>${data.title}</h3>
+                </div>
+                <h4 style="margin: 20px 0; color: #667eea;">Access Permissions:</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                    ${data.access.map(item => `
+                        <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
+                            ✓ ${item}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Generate signatures
+        function generateSignatures() {
+            const name = document.getElementById('signatureName').value;
+            if (!name) {
+                document.getElementById('signatureOptions').innerHTML = '';
+                return;
+            }
+
+            const styles = [
+                { name: 'Classic', style: 'font-family: "Brush Script MT", cursive; font-weight: normal;' },
+                { name: 'Modern', style: 'font-family: "Lucida Handwriting", cursive; font-weight: bold;' },
+                { name: 'Elegant', style: 'font-family: "Edwardian Script ITC", cursive; font-style: italic;' },
+                { name: 'Bold', style: 'font-family: "Arial Black", sans-serif; font-weight: 900;' },
+                { name: 'Stylish', style: 'font-family: "Monotype Corsiva", cursive; font-style: italic;' },
+                { name: 'Professional', style: 'font-family: "Times New Roman", serif; font-weight: 600;' }
+            ];
+
+            document.getElementById('signatureOptions').innerHTML = styles.map((s, i) => `
+                <div class="signature-style" onclick="selectSignature(${i}, '${name}', '${s.style}')">
+                    <div class="signature-preview" style="${s.style}">${name}</div>
+                    <strong>${s.name}</strong>
+                </div>
+            `).join('');
+        }
+
+        // Select signature
+        function selectSignature(index, name, style) {
+            document.querySelectorAll('.signature-style').forEach(s => s.classList.remove('selected'));
+            event.target.closest('.signature-style').classList.add('selected');
+            selectedSignature = { name, style };
+        }
+
+        // Save signature
+        function saveSignature() {
+            if (!selectedSignature) {
+                alert('Please select a signature style first!');
+                return;
+            }
+            alert(`✅ Signature saved successfully!\n\nYour signature will be used for all document signing.`);
+        }
+
+        // Show tab
+        function showTab(tabName) {
+            document.querySelectorAll('.content').forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'patients') {
+                displayPatients();
+            } else if (tabName === 'roles') {
+                selectRole('receptionist');
+            } else if (tabName === 'dashboard') {
+                updateDashboard();
+            }
+        }
+
+        // Initialize
+        updateDashboard();
+    </script>
+</body>
+</html>

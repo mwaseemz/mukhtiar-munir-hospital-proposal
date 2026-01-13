@@ -1,0 +1,1440 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===========================
+// AUTHENTICATION & USERS
+// ===========================
+
+model User {
+  id                String   @id @default(cuid())
+  username          String   @unique
+  email             String   @unique
+  password          String
+  firstName         String
+  lastName          String
+  phoneNumber       String?
+  role              Role     @default(NURSE)
+  department        String?
+  isActive          Boolean  @default(true)
+  lastLogin         DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  sessions          Session[]
+  auditLogs         AuditLog[]
+  notifications     Notification[]
+  digitalSignatures DigitalSignature[]
+  
+  // Clinical records created by this user
+  admissions        Patient[] @relation("AdmittedByUser")
+  consentForms      ConsentForm[]
+  estimateForms     EstimateForm[]
+  medicalHistories  MedicalHistory[]
+  anesthesiaRecords AnesthesiaRecord[]
+  operationNotes    OperationNotes[]
+  treatmentOrders   TreatmentOrder[]
+  dailyProgressNotes DailyProgressNote[]
+  consultantRounds  ConsultantRound[]
+  dischargeSummaries DischargeSummary[]
+  bloodTransfusions BloodTransfusion[]
+  criticalNotes     CriticalNote[]
+  investigationProfiles InvestigationProfile[] @relation("InvestigationProfiles")
+  physicalExaminations PhysicalExamination[] @relation("PhysicalExaminations")
+  lamaDorForms      LAMADORForm[] @relation("LAMADORForms")
+
+  @@map("users")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  DOCTOR
+  NURSE
+  RECEPTIONIST
+  PHARMACIST
+  LAB_TECHNICIAN
+  RADIOLOGIST
+  ACCOUNTS
+  VIEWER
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  token        String   @unique
+  refreshToken String   @unique
+  expiresAt    DateTime
+  ipAddress    String?
+  userAgent    String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// ===========================
+// PATIENT MANAGEMENT
+// ===========================
+
+model Patient {
+  id              String   @id @default(cuid())
+  mrNumber        String   @unique // Auto-generated MR number
+  
+  // Personal Information
+  firstName       String
+  lastName        String
+  fatherName      String
+  gender          Gender
+  dateOfBirth     DateTime
+  age             Int
+  cnic            String?
+  phoneNumber     String
+  alternatePhone  String?
+  address         String
+  city            String
+  emergencyContact String
+  emergencyPhone  String
+  
+  // Admission Information
+  admissionDate   DateTime @default(now())
+  admissionType   AdmissionType
+  admissionLocation AdmissionLocation @default(WARD) // MANDATORY: Ward, Private, Nursery, ICU
+  patientType     PatientType @default(MEDICINE) // Surgery or Medicine
+  admittedById    String
+  department      String
+  wardNumber      String?
+  bedNumber       String?
+  
+  // Medical Information
+  bloodGroup      String?
+  allergies       String?
+  previousSurgeries String?
+  chronicDiseases String?
+  
+  // Viral Markers (CRITICAL for surgery)
+  antiHCV         Boolean? // Hepatitis C
+  hbsAg           Boolean? // Hepatitis B
+  hiv             Boolean? // HIV
+  viralMarkersDate DateTime? // When tested
+  viralMarkersAlert Boolean @default(false) // Alert if any positive
+  
+  // Status
+  status          PatientStatus @default(ADMITTED)
+  dischargeDate   DateTime?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  admittedBy      User @relation("AdmittedByUser", fields: [admittedById], references: [id])
+  
+  consentForms    ConsentForm[]
+  estimateForms   EstimateForm[]
+  protocolReceiving ProtocolReceivingWard[]
+  medicalHistories MedicalHistory[]
+  shiftingToOT    ShiftingToOT[]
+  receivingInOT   ReceivingInOT[]
+  anesthesiaRecords AnesthesiaRecord[]
+  preOpChecklists PreOpChecklist[]
+  postAnesthesiaRecovery PostAnesthesiaRecovery[]
+  operationNotes  OperationNotes[]
+  postOpNotes     PostOpNotes[]
+  postOpOrders    PostOpOrders[]
+  treatmentOrders TreatmentOrder[]
+  treatmentAdministrations TreatmentAdministration[]
+  inputOutputCharts InputOutputChart[]
+  dailyProgressNotes DailyProgressNote[]
+  consultantRounds ConsultantRound[]
+  bloodTransfusions BloodTransfusion[]
+  criticalNotes   CriticalNote[]
+  babyReceiving   BabyReceiving[]
+  dischargeSummaries DischargeSummary[]
+  investigationProfiles InvestigationProfile[]
+  physicalExaminations PhysicalExamination[]
+  lamaDorForms    LAMADORForm[]
+
+  @@map("patients")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum AdmissionType {
+  EMERGENCY
+  PLANNED
+  OPD
+}
+
+enum PatientStatus {
+  ADMITTED
+  IN_OT
+  IN_RECOVERY
+  DISCHARGED
+  LAMA // Left Against Medical Advice
+  DOR  // Discharged On Request
+  EXPIRED
+  TRANSFERRED
+}
+
+enum AdmissionLocation {
+  WARD           // W
+  PRIVATE_ROOM   // P
+  NURSERY        // N
+  ICU            // IC
+}
+
+enum PatientType {
+  SURGERY        // Surgical patient - enables OT/anesthesia forms
+  MEDICINE       // Medical patient - hides surgical forms
+}
+
+// ===========================
+// CONSENT FORMS
+// ===========================
+
+model ConsentForm {
+  id              String   @id @default(cuid())
+  patientId       String
+  formType        ConsentFormType
+  
+  // Common fields
+  patientName     String
+  age             Int
+  gender          Gender
+  guardianName    String
+  guardianRelation String
+  cnic            String?
+  address         String
+  
+  // Form-specific JSON data
+  formData        Json
+  
+  // Digital Signature
+  signatureId     String?
+  signatureDate   DateTime?
+  witnessName     String?
+  witnessSignature String?
+  
+  // Upload/Scan
+  uploadedDocUrl  String?
+  
+  // Workflow
+  isBlocking      Boolean  @default(true) // If true, blocks other actions until filled
+  isCompleted     Boolean  @default(false)
+  completedById   String?
+  completedAt     DateTime?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  completedBy     User?   @relation(fields: [completedById], references: [id])
+  signature       DigitalSignature? @relation(fields: [signatureId], references: [id])
+
+  @@map("consent_forms")
+}
+
+enum ConsentFormType {
+  GENERAL_ADMISSION
+  OPERATION_URDU
+  ANESTHESIA_URDU
+}
+
+// ===========================
+// DIGITAL SIGNATURES
+// ===========================
+
+model DigitalSignature {
+  id              String   @id @default(cuid())
+  userId          String
+  signatureType   SignatureType
+  
+  // Type-to-generate signature
+  signatureText   String   // The name/text
+  signatureStyle  String   // Font style (Script, Elegant, Bold, etc.)
+  signatureDataUrl String  @db.Text // Base64 image of signature
+  
+  // Digital stamp
+  stampDataUrl    String?  @db.Text // Auto-generated digital stamp
+  
+  isDefault       Boolean  @default(false)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  consentForms    ConsentForm[]
+
+  @@map("digital_signatures")
+}
+
+enum SignatureType {
+  ELECTRONIC
+  SCANNED
+  TYPED
+}
+
+// ===========================
+// ESTIMATE FORM
+// ===========================
+
+model EstimateForm {
+  id              String   @id @default(cuid())
+  patientId       String
+  createdById     String
+  
+  // Procedure details
+  procedureName   String
+  surgeonName     String
+  anesthetistName String
+  estimatedDate   DateTime
+  
+  // Cost breakdown
+  items           Json     // Array of {description, quantity, rate, amount}
+  subtotal        Float
+  discount        Float    @default(0)
+  tax             Float    @default(0)
+  grandTotal      Float
+  
+  // Additional info
+  notes           String?
+  termsConditions String?
+  
+  // Status
+  status          EstimateStatus @default(PENDING)
+  approvedBy      String?
+  approvedAt      DateTime?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  createdBy       User @relation(fields: [createdById], references: [id])
+
+  @@map("estimate_forms")
+}
+
+enum EstimateStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PAID
+  PARTIALLY_PAID
+}
+
+// ===========================
+// WARD ADMISSION PROTOCOLS
+// ===========================
+
+model ProtocolReceivingWard {
+  id              String   @id @default(cuid())
+  patientId       String
+  
+  receivingDate   DateTime @default(now())
+  receivingTime   String
+  receivedBy      String
+  handedOverBy    String
+  
+  // Patient condition
+  consciousness   String
+  vitals          Json     // {bp, pulse, temp, respiration, spo2}
+  ivLines         String?
+  drains          String?
+  catheters       String?
+  
+  // Documentation received
+  consentReceived Boolean
+  investigationsReceived Boolean
+  xraysReceived   Boolean
+  
+  notes           String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("protocol_receiving_ward")
+}
+
+// ===========================
+// MEDICAL HISTORY
+// ===========================
+
+model MedicalHistory {
+  id              String   @id @default(cuid())
+  patientId       String
+  recordedById    String
+  
+  // Chief Complaint
+  chiefComplaint  String
+  
+  // History of Present Illness
+  presentIllness  String
+  duration        String
+  onset           String
+  severity        String
+  
+  // Past Medical History
+  pastMedicalHistory String?
+  pastSurgicalHistory String?
+  medicationHistory String?
+  allergies       String?
+  familyHistory   String?
+  socialHistory   String?
+  
+  // Review of Systems
+  reviewOfSystems Json?
+  
+  // Physical Examination
+  generalAppearance String?
+  vitals          Json     // {bp, pulse, temp, respiration, spo2, weight, height}
+  systemicExamination Json?
+  
+  // Provisional Diagnosis
+  provisionalDiagnosis String
+  
+  // Investigations Advised
+  investigationsAdvised String?
+  
+  // Treatment Plan
+  treatmentPlan   String?
+  
+  recordedAt      DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  recordedBy      User @relation(fields: [recordedById], references: [id])
+
+  @@map("medical_history")
+}
+
+// ===========================
+// OT PROTOCOLS
+// ===========================
+
+model ShiftingToOT {
+  id              String   @id @default(cuid())
+  patientId       String
+  
+  shiftingDate    DateTime
+  shiftingTime    String
+  shiftedBy       String
+  
+  // Pre-shift checklist
+  consentVerified Boolean
+  nbmStatus       Boolean  // Nil By Mouth
+  preOpMedication Boolean
+  investigationsAttached Boolean
+  ivLineSecured   Boolean
+  identificationVerified Boolean
+  
+  // Vitals before shifting
+  vitals          Json
+  
+  notes           String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("shifting_to_ot")
+}
+
+model ReceivingInOT {
+  id              String   @id @default(cuid())
+  patientId       String
+  
+  receivingDate   DateTime
+  receivingTime   String
+  receivedBy      String
+  handedOverBy    String
+  
+  // Verification checklist
+  identityVerified Boolean
+  procedureVerified Boolean
+  consentVerified Boolean
+  siteMarked      Boolean
+  investigationsChecked Boolean
+  
+  // Patient condition
+  consciousness   String
+  vitals          Json
+  
+  notes           String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("receiving_in_ot")
+}
+
+// ===========================
+// ANESTHESIA RECORDS
+// ===========================
+
+model AnesthesiaRecord {
+  id              String   @id @default(cuid())
+  patientId       String
+  anesthetistId   String
+  
+  // Pre-anesthesia assessment
+  asaClass        String   // ASA I-VI classification
+  airwayAssessment String
+  dentitionStatus String?
+  neckMovement    String?
+  previousAnesthesia String?
+  
+  // Anesthesia plan
+  anesthesiaType  AnesthesiaType
+  technique       String
+  drugs           Json     // Array of {name, dose, route, time}
+  fluidsGiven     Json     // Array of {type, volume, time}
+  bloodProducts   Json?    // Array of {type, units, time}
+  
+  // Monitoring
+  vitalsChart     Json     // Time-series data
+  oxygenSaturation Json
+  etco2           Json?
+  
+  // Airway management
+  airwayMethod    String?  // ETT, LMA, etc.
+  tubeSize        String?
+  cuffPressure    String?
+  
+  // Complications
+  complications   String?
+  management      String?
+  
+  // End of anesthesia
+  emergenceTime   String?
+  recoveryNotes   String?
+  postOpOrders    String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  anesthetist     User @relation(fields: [anesthetistId], references: [id])
+
+  @@map("anesthesia_records")
+}
+
+enum AnesthesiaType {
+  GENERAL
+  SPINAL
+  EPIDURAL
+  LOCAL
+  REGIONAL
+  SEDATION
+}
+
+// ===========================
+// PRE-OP CHECKLIST
+// ===========================
+
+model PreOpChecklist {
+  id              String   @id @default(cuid())
+  patientId       String
+  
+  // Identity verification
+  patientIdentified Boolean
+  wristbandChecked Boolean
+  consentSigned   Boolean
+  procedureSiteMarked Boolean
+  
+  // Pre-operative preparation
+  nbmVerified     Boolean
+  allergiesDocumented Boolean
+  investigationsReviewed Boolean
+  bloodArranged   Boolean?
+  
+  // Checklist items
+  checklistItems  Json     // Customizable checklist
+  
+  completedBy     String
+  completedAt     DateTime
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("pre_op_checklist")
+}
+
+// ===========================
+// POST-ANESTHESIA RECOVERY
+// ===========================
+
+model PostAnesthesiaRecovery {
+  id              String   @id @default(cuid())
+  patientId       String
+  
+  admissionTime   DateTime
+  dischargeTime   DateTime?
+  
+  // Aldrete Score monitoring
+  aldreteScores   Json     // Time-series Aldrete scores
+  
+  // Vitals monitoring
+  vitalsChart     Json
+  
+  // Recovery assessment
+  consciousness   String
+  airway          String
+  breathing       String
+  circulation     String
+  painScore       Int?
+  nauseaVomiting  Boolean
+  
+  // Interventions
+  oxygenGiven     String?
+  fluidsGiven     Json?
+  medicationsGiven Json?
+  
+  // Discharge criteria
+  dischargeCriteriaMet Boolean @default(false)
+  dischargedTo    String?
+  dischargedBy    String?
+  
+  notes           String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("post_anesthesia_recovery")
+}
+
+// ===========================
+// OPERATION NOTES
+// ===========================
+
+model OperationNotes {
+  id              String   @id @default(cuid())
+  patientId       String
+  surgeonId       String
+  
+  // Operation details
+  operationDate   DateTime
+  startTime       String
+  endTime         String
+  duration        String?
+  
+  // Team
+  surgeon         String
+  assistant       String?
+  anesthetist     String
+  nurses          String?
+  
+  // Procedure
+  diagnosis       String
+  procedure       String
+  operativeFindings String
+  
+  // Details
+  incision        String?
+  procedureDetails String   @db.Text
+  specimens       String?
+  drains          String?
+  closure         String?
+  
+  // Blood loss and fluids
+  estimatedBloodLoss String?
+  fluidsGiven     Json?
+  bloodTransfusion Json?
+  
+  // Complications
+  complications   String?
+  
+  // Post-op instructions
+  postOpDiagnosis String
+  postOpInstructions String @db.Text
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  surgeonUser     User @relation(fields: [surgeonId], references: [id])
+
+  @@map("operation_notes")
+}
+
+// ===========================
+// POST-OP NOTES
+// ===========================
+
+model PostOpNotes {
+  id              String   @id @default(cuid())
+  patientId       String
+  
+  postOpDay       Int      // Post-op day number
+  date            DateTime
+  
+  // Assessment
+  generalCondition String
+  consciousness   String
+  vitals          Json
+  painScore       Int?
+  
+  // Wound assessment
+  woundCondition  String?
+  drainOutput     String?
+  
+  // System review
+  cardiovascular  String?
+  respiratory     String?
+  gastrointestinal String?
+  genitourinary   String?
+  
+  // Management
+  fluidsRunning   String?
+  medications     String?
+  
+  // Plan
+  plan            String
+  
+  recordedBy      String
+  recordedAt      DateTime
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("post_op_notes")
+}
+
+// ===========================
+// POST-OP ORDERS
+// ===========================
+
+model PostOpOrders {
+  id              String   @id @default(cuid())
+  patientId       String
+  
+  // Orders
+  dietOrders      String?
+  activityOrders  String?
+  nursingOrders   String?
+  investigationOrders String?
+  medicationOrders Json    // Array of medication orders
+  ivFluidsOrders  Json?
+  
+  // Monitoring
+  vitalsSigns     String?
+  intakeOutput    Boolean @default(true)
+  
+  orderedBy       String
+  orderedAt       DateTime
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("post_op_orders")
+}
+
+// ===========================
+// TREATMENT & MEDICATION
+// ===========================
+
+model TreatmentOrder {
+  id              String   @id @default(cuid())
+  patientId       String
+  orderedById     String
+  
+  orderType       OrderType
+  
+  // Medication details
+  medicationName  String?
+  dosage          String?
+  route           String?
+  frequency       String?
+  duration        String?
+  startDate       DateTime?
+  endDate         DateTime?
+  
+  // Investigation details
+  investigationType String?
+  investigationName String?
+  
+  // Other orders
+  orderDetails    String?
+  
+  // Status
+  status          OrderStatus @default(ACTIVE)
+  priority        Priority @default(ROUTINE)
+  
+  // Special instructions
+  instructions    String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  orderedBy       User @relation(fields: [orderedById], references: [id])
+  administrations TreatmentAdministration[]
+
+  @@map("treatment_orders")
+}
+
+enum OrderType {
+  MEDICATION
+  IV_FLUID
+  INVESTIGATION
+  PROCEDURE
+  DIET
+  ACTIVITY
+  NURSING_CARE
+}
+
+enum OrderStatus {
+  ACTIVE
+  COMPLETED
+  DISCONTINUED
+  ON_HOLD
+}
+
+enum Priority {
+  STAT
+  URGENT
+  ROUTINE
+}
+
+model TreatmentAdministration {
+  id              String   @id @default(cuid())
+  orderId         String
+  patientId       String
+  
+  scheduledTime   DateTime
+  actualTime      DateTime?
+  
+  // Administration details
+  doseGiven       String
+  route           String
+  site            String?
+  
+  // Status
+  status          AdminStatus @default(PENDING)
+  
+  // Documentation
+  administeredBy  String?
+  witnessedBy     String?
+  notes           String?
+  
+  // Refusal/Omission
+  reasonNotGiven  String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  order           TreatmentOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  patient         Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("treatment_administration")
+}
+
+enum AdminStatus {
+  PENDING
+  GIVEN
+  MISSED
+  REFUSED
+  HELD
+}
+
+// ===========================
+// INPUT/OUTPUT CHART
+// ===========================
+
+model InputOutputChart {
+  id              String   @id @default(cuid())
+  patientId       String
+  
+  date            DateTime
+  time            String
+  
+  // Input
+  oralIntake      Float?
+  ivFluids        Float?
+  bloodProducts   Float?
+  otherIntake     Float?
+  totalIntake     Float
+  
+  // Output
+  urineOutput     Float?
+  drainOutput     Float?
+  vomiting        Float?
+  otherOutput     Float?
+  totalOutput     Float
+  
+  // Balance
+  balance         Float
+  cumulativeBalance Float?
+  
+  recordedBy      String
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("input_output_chart")
+}
+
+// ===========================
+// DAILY PROGRESS NOTES
+// ===========================
+
+model DailyProgressNote {
+  id              String   @id @default(cuid())
+  patientId       String
+  recordedById    String
+  
+  date            DateTime
+  time            String
+  
+  // SOAP Format
+  subjective      String   // Patient's complaints
+  objective       String   // Vitals, examination findings
+  assessment      String   // Diagnosis, problem list
+  plan            String   // Treatment plan
+  
+  // Vitals
+  vitals          Json?
+  
+  recordedAt      DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  recordedBy      User @relation(fields: [recordedById], references: [id])
+
+  @@map("daily_progress_notes")
+}
+
+// ===========================
+// CONSULTANT ROUNDS
+// ===========================
+
+model ConsultantRound {
+  id              String   @id @default(cuid())
+  patientId       String
+  consultantId    String
+  
+  roundDate       DateTime
+  roundTime       String
+  
+  // Assessment
+  clinicalStatus  String
+  vitals          Json?
+  examination     String?
+  
+  // Review
+  investigationsReview String?
+  currentTreatmentReview String?
+  
+  // Orders
+  newOrders       String?
+  modifications   String?
+  
+  // Plan
+  plan            String
+  expectedDischarge DateTime?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  consultant      User @relation(fields: [consultantId], references: [id])
+
+  @@map("consultant_rounds")
+}
+
+// ===========================
+// BLOOD TRANSFUSION
+// ===========================
+
+model BloodTransfusion {
+  id              String   @id @default(cuid())
+  patientId       String
+  orderedById     String
+  
+  // Blood product details
+  productType     String   // PRBC, FFP, Platelets, Cryoprecipitate
+  bloodGroup      String
+  units           Int
+  bagNumber       String
+  
+  // Cross-matching
+  crossMatchDone  Boolean
+  crossMatchResult String?
+  
+  // Transfusion details
+  startTime       DateTime?
+  endTime         DateTime?
+  
+  // Pre-transfusion vitals
+  preVitals       Json?
+  
+  // Monitoring during transfusion
+  monitoringChart Json?    // Time-series vitals during transfusion
+  
+  // Post-transfusion
+  postVitals      Json?
+  
+  // Reactions
+  reactions       String?
+  management      String?
+  
+  // Status
+  status          TransfusionStatus @default(ORDERED)
+  
+  // Documentation
+  administeredBy  String?
+  witnessedBy     String?
+  notes           String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  orderedBy       User @relation(fields: [orderedById], references: [id])
+
+  @@map("blood_transfusions")
+}
+
+enum TransfusionStatus {
+  ORDERED
+  READY
+  IN_PROGRESS
+  COMPLETED
+  STOPPED
+}
+
+// ===========================
+// CRITICAL NOTES
+// ===========================
+
+model CriticalNote {
+  id              String   @id @default(cuid())
+  patientId       String
+  recordedById    String
+  
+  date            DateTime
+  time            String
+  
+  // Critical event
+  eventType       CriticalEventType
+  description     String   @db.Text
+  
+  // Clinical status
+  vitals          Json
+  consciousness   String
+  
+  // Management
+  actionsTaken    String   @db.Text
+  medications     Json?
+  procedures      Json?
+  
+  // Outcome
+  outcome         String?
+  
+  // Escalation
+  relativesInformed Boolean @default(false)
+  consultantInformed Boolean @default(false)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  recordedBy      User @relation(fields: [recordedById], references: [id])
+
+  @@map("critical_notes")
+}
+
+enum CriticalEventType {
+  CARDIAC_ARREST
+  RESPIRATORY_DISTRESS
+  SHOCK
+  HEMORRHAGE
+  SEIZURE
+  ALTERED_CONSCIOUSNESS
+  ANAPHYLAXIS
+  OTHER
+}
+
+// ===========================
+// BABY RECEIVING
+// ===========================
+
+model BabyReceiving {
+  id              String   @id @default(cuid())
+  patientId       String   // Mother's patient ID
+  
+  // Baby details
+  babyName        String?
+  gender          Gender
+  dateOfBirth     DateTime
+  timeOfBirth     String
+  birthWeight     Float
+  length          Float?
+  headCircumference Float?
+  
+  // Delivery details
+  deliveryType    DeliveryType
+  gestationalAge  String
+  apgarScore1Min  Int
+  apgarScore5Min  Int
+  
+  // Resuscitation
+  resuscitationRequired Boolean
+  resuscitationDetails String?
+  
+  // Initial assessment
+  generalAppearance String
+  cryingStatus    String
+  activityLevel   String
+  skinColor       String
+  
+  // Feeding
+  feedingInitiated Boolean
+  feedingType     String?
+  
+  // Vitals
+  temperature     Float
+  heartRate       Int
+  respiratoryRate Int
+  
+  // Abnormalities
+  congenitalAbnormalities String?
+  
+  // Status
+  status          BabyStatus @default(WITH_MOTHER)
+  
+  notes           String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  mother          Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("baby_receiving")
+}
+
+enum DeliveryType {
+  NORMAL_VAGINAL
+  CESAREAN
+  ASSISTED_VAGINAL
+  FORCEPS
+  VACUUM
+}
+
+enum BabyStatus {
+  WITH_MOTHER
+  NICU
+  TRANSFERRED
+  EXPIRED
+}
+
+// ===========================
+// DISCHARGE MANAGEMENT
+// ===========================
+
+model DischargeSummary {
+  id              String   @id @default(cuid())
+  patientId       String
+  preparedById    String
+  
+  // Discharge details
+  dischargeDate   DateTime
+  dischargeTime   String
+  dischargeType   DischargeType
+  
+  // Admission summary
+  admissionDate   DateTime
+  admissionDiagnosis String
+  
+  // Hospital course
+  hospitalCourse  String   @db.Text
+  
+  // Investigations
+  investigationsSummary String? @db.Text
+  
+  // Procedures/Operations
+  proceduresDone  String?  @db.Text
+  
+  // Final diagnosis
+  finalDiagnosis  String
+  
+  // Condition at discharge
+  conditionAtDischarge String
+  
+  // Medications
+  dischargeMedications Json  // Array of medications with instructions
+  
+  // Follow-up
+  followUpInstructions String @db.Text
+  followUpDate    DateTime?
+  followUpWith    String?
+  
+  // Activity/Diet
+  activityRestrictions String?
+  dietaryAdvice   String?
+  
+  // LAMA/DOR specific
+  lamaReason      String?
+  lamaAcknowledgement Boolean?
+  
+  // Special instructions
+  specialInstructions String? @db.Text
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  preparedBy      User @relation(fields: [preparedById], references: [id])
+
+  @@map("discharge_summaries")
+}
+
+enum DischargeType {
+  ROUTINE
+  LAMA  // Left Against Medical Advice
+  DOR   // Discharge On Request
+  TRANSFERRED
+  ABSCONDED
+  EXPIRED
+}
+
+// ===========================
+// SYSTEM CONFIGURATION
+// ===========================
+
+model SystemConfig {
+  id              String   @id @default(cuid())
+  key             String   @unique
+  value           String
+  description     String?
+  category        String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("system_config")
+}
+
+// ===========================
+// AUDIT TRAIL
+// ===========================
+
+model AuditLog {
+  id              String   @id @default(cuid())
+  userId          String?
+  action          String
+  entity          String
+  entityId        String?
+  changes         Json?
+  ipAddress       String?
+  userAgent       String?
+  timestamp       DateTime @default(now())
+
+  user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+}
+
+// ===========================
+// NOTIFICATIONS
+// ===========================
+
+model Notification {
+  id              String   @id @default(cuid())
+  userId          String
+  title           String
+  message         String
+  type            NotificationType
+  priority        Priority @default(ROUTINE)
+  isRead          Boolean  @default(false)
+  actionUrl       String?
+  createdAt       DateTime @default(now())
+
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+enum NotificationType {
+  SYSTEM
+  ALERT
+  REMINDER
+  APPROVAL
+  TASK
+}
+
+// ===========================
+// INVESTIGATION PROFILE
+// ===========================
+
+model InvestigationProfile {
+  id              String   @id @default(cuid())
+  patientId       String
+  recordedById    String
+  
+  // Hematology
+  cbc             Boolean  @default(false)
+  hemoglobin      Boolean  @default(false)
+  tlc             Boolean  @default(false)
+  plateletCount   Boolean  @default(false)
+  esr             Boolean  @default(false)
+  
+  // Blood Chemistry
+  bloodSugarRandom  Boolean  @default(false)
+  bloodSugarFasting Boolean  @default(false)
+  hba1c           Boolean  @default(false)
+  renalFunctionTest Boolean  @default(false)
+  liverFunctionTest Boolean  @default(false)
+  
+  // Viral Markers
+  hbsAg           Boolean  @default(false)
+  antiHCV         Boolean  @default(false)
+  hiv             Boolean  @default(false)
+  
+  // Coagulation Profile
+  pt              Boolean  @default(false)
+  aptt            Boolean  @default(false)
+  inr             Boolean  @default(false)
+  
+  // Imaging
+  xrayChest       Boolean  @default(false)
+  xrayAbdomen     Boolean  @default(false)
+  ultrasound      Boolean  @default(false)
+  ctScan          Boolean  @default(false)
+  mri             Boolean  @default(false)
+  ecg             Boolean  @default(false)
+  echo            Boolean  @default(false)
+  
+  // Urine Analysis
+  urineRE         Boolean  @default(false)
+  urineCulture    Boolean  @default(false)
+  
+  // Blood Bank
+  bloodGrouping   Boolean  @default(false)
+  crossMatching   Boolean  @default(false)
+  
+  additionalTests String?
+  notes           String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  recordedBy      User @relation("InvestigationProfiles", fields: [recordedById], references: [id])
+
+  @@map("investigation_profiles")
+}
+
+// ===========================
+// PHYSICAL EXAMINATION
+// ===========================
+
+model PhysicalExamination {
+  id              String   @id @default(cuid())
+  patientId       String
+  examinedById    String
+  
+  // General Appearance
+  generalAppearance String?
+  consciousness   String?
+  
+  // Vital Signs
+  bloodPressure   String
+  pulse           String
+  temperature     String
+  respiratoryRate String
+  oxygenSaturation String?
+  
+  // Physical Findings
+  pallor          Boolean  @default(false)
+  jaundice        Boolean  @default(false)
+  cyanosis        Boolean  @default(false)
+  clubbing        Boolean  @default(false)
+  edema           Boolean  @default(false)
+  lymphadenopathy Boolean  @default(false)
+  
+  // Systemic Examination
+  cardiovascularSystem  String?  @db.Text
+  respiratorySystem     String?  @db.Text
+  gastrointestinalSystem String? @db.Text
+  centralNervousSystem  String?  @db.Text
+  musculoskeletalSystem String?  @db.Text
+  
+  otherFindings   String?  @db.Text
+  notes           String?  @db.Text
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  examinedBy      User @relation("PhysicalExaminations", fields: [examinedById], references: [id])
+
+  @@map("physical_examinations")
+}
+
+// ===========================
+// LAMA / DOR FORM
+// ===========================
+
+model LAMADORForm {
+  id              String   @id @default(cuid())
+  patientId       String
+  createdById     String
+  
+  type            LAMADORType
+  reason          String   @db.Text
+  doctorStatement String   @db.Text
+  
+  risksExplained  Boolean
+  patientOrRelativeStatement String?  @db.Text
+  
+  // Witness Information
+  witnessName     String?
+  witnessRelation String?
+  
+  notes           String?  @db.Text
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  createdBy       User @relation("LAMADORForms", fields: [createdById], references: [id])
+
+  @@map("lama_dor_forms")
+}
+
+enum LAMADORType {
+  LAMA  // Leave Against Medical Advice
+  DOR   // Discharge On Request
+}
