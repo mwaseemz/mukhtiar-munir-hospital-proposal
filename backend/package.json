@@ -2,7 +2,7 @@
   "name": "hospital-management-backend",
   "version": "1.0.0",
   "description": "Hospital Management System Backend API",
-  "main": "dist/server.js",
+  "main": "src/server.ts",
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "prisma generate",
