@@ -2,10 +2,10 @@
 nixPkgs = ["nodejs_20", "openssl"]
 
 [phases.install]
-cmds = ["npm install --omit=dev"]
+cmds = ["npm install"]
 
 [phases.build]
-cmds = ["npm install", "npx prisma generate", "npx tsc"]
+cmds = ["npx prisma generate"]
 
 [start]
-cmd = "node dist/server.js"
+cmd = "npm start"
