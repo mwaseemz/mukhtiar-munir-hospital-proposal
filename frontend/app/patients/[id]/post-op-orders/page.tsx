@@ -18,7 +18,7 @@ const postOpOrdersSchema = z.object({
   
   // Monitoring
   vitalSignsFrequency: z.string().min(1, 'Vitals monitoring frequency is required'),
-  neurological Check: z.boolean().optional(),
+  neurologicalCheck: z.boolean().optional(),
   fluidBalanceMonitoring: z.boolean().optional(),
   
   // Position & Activity
